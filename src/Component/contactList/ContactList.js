@@ -6,7 +6,7 @@ const ContactList = ({ contacts, deletContact }) => {
   return (
     <>
       <div>
-        <ol className={s.List}>
+        <ol className={s.list}>
           {contacts.map((contact) => (
             <li className={s.data} key={contact.id}>
               <p>

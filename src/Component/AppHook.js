@@ -1,85 +1,67 @@
-// import React, { Component } from "react";
-// import { v4 as uuidv4 } from "uuid";
-// import ContactList from "./contactList/ContactList";
-// import Filter from "./filter/Filter";
-// import ContactForm from "./contactForm/ContactForm";
+import React, { useState, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
+import ContactList from "./contactList/ContactList";
+import Filter from "./filter/Filter";
+import ContactForm from "./contactForm/ContactForm";
 
-// class App extends Component {
-//   state = {
-//     contacts: [],
-//     filter: "",
-//   };
+const AppHook = () => {
+  const [contacts, setContacts] = useState(
+    JSON.parse(localStorage.getItem("contacts")) ?? ""
+  );
+  const [filter, setFilter] = useState("");
 
-//   componentDidMount() {
-//     const contactsLS = localStorage.getItem("contacts");
-//     const parsedContacts = JSON.parse(contactsLS);
-//     if (parsedContacts) {
-//       this.setState({ contacts: parsedContacts });
-//     }
-//   }
+  useEffect(() => {
+    localStorage.setItem("contacts", JSON.stringify(contacts));
+  }, [contacts]);
 
-//   componentDidUpdate(prevProps, prevState) {
-//     if (this.state.contacts !== prevState.contacts) {
-//       localStorage.setItem("contacts", JSON.stringify(this.state.contacts));
-//     }
-//   }
+  const addNewContact = (newContact) => {
+    setContacts((prev) => [...prev, { id: uuidv4(), ...newContact }]);
+  };
 
-//   addNewContact = (newContact) => {
-//     this.setState((prev) => {
-//       return { contacts: [...prev.contacts, { id: uuidv4(), ...newContact }] };
-//     });
-//   };
+  const isExistContact = (name) =>
+    contacts.some(
+      (contact) => contact.name.toLowerCase() === name.toLowerCase()
+    );
 
-//   isExistContact = (name) =>
-//     this.state.contacts.some(
-//       (contact) => contact.name.toLowerCase() === name.toLowerCase()
-//     );
+  const deletContact = (e) => {
+    const id = e.target.id;
+    setContacts((prev) => prev.filter((contact) => contact.id !== id));
+  };
 
-//   deletContact = (e) => {
-//     const id = e.target.id;
-//     this.setState((prev) => ({
-//       contacts: [...prev.contacts.filter((contact) => contact.id !== id)],
-//     }));
-//   };
+  const onHandleChangeFilter = (e) => {
+    const filter = e.target.value;
+    setFilter(filter);
+  };
 
-//   onHandleChangeFilter = (e) => {
-//     this.setState({ filter: e.target.value });
-//   };
+  const filteredContacts = () => {
+    // const { filter, contacts } = this.state;
+    const normolizedFilter = filter.toLowerCase();
+    return normolizedFilter
+      ? contacts.filter((contact) =>
+          contact.name.toLowerCase().includes(normolizedFilter)
+        )
+      : contacts;
+  };
 
-//   getVisibleContacts = () => {
-//     const { filter, contacts } = this.state;
-//     const normolizedFilter = filter.toLowerCase();
+  // const filteredContacts = getVisibleContacts();
 
-//     return normolizedFilter
-//       ? contacts.filter((contact) =>
-//           contact.name.toLowerCase().includes(normolizedFilter)
-//         )
-//       : contacts;
-//   };
+  return (
+    <>
+      <div>
+        <h1>Phonebook</h1>
+        <ContactForm
+          isExistContact={isExistContact}
+          addNewContact={addNewContact}
+        />
+        <h2>Contacts</h2>
+        <Filter value={filter} onChange={onHandleChangeFilter} />
+        <ContactList
+          contacts={filteredContacts()}
+          deletContact={deletContact}
+        />
+      </div>
+    </>
+  );
+};
 
-//   render() {
-//     const filteredContacts = this.getVisibleContacts();
-//     return (
-//       <>
-//         <div>
-//           <h1>Phonebook</h1>
-//           <ContactForm
-//             isExistContact={this.isExistContact}
-//             addNewContact={this.addNewContact}
-//           />
-//           <h2>Contacts</h2>
-//           <Filter
-//             value={this.state.filter}
-//             onChange={this.onHandleChangeFilter}
-//           />
-//           <ContactList
-//             contacts={filteredContacts}
-//             deletContact={this.deletContact}
-//           />
-//         </div>
-//       </>
-//     );
-//   }
-// }
-
-// export default App;
+export default AppHook;
